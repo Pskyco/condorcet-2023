@@ -1,0 +1,50 @@
+@model PcrTestEditViewModel
+
+@* public string Code { get; set; } *@
+@* public DateTime SamplingDate { get; set; } *@
+@* public DateTime? ReceptionDate { get; set; } *@
+@* public DateTime? AnalysisDate { get; set; } *@
+@* public ResultEnum ResultEnum { get; set; } *@
+@* public string Comment { get; set; } *@
+@* public string Performer { get; set; } *@
+
+<form>
+    <div class="form-group">
+        <label for="code">Code</label>
+        <input type="text" class="form-control" id="code" name="code" placeholder="ABX-001">
+    </div>
+    <div class="form-group">
+        <label for="samplingDate">Date de prélèvement</label>
+        <input type="datetime-local" class="form-control" id="samplingDate" name="samplingDate">
+    </div>
+    <div class="form-group">
+        <label for="receptionDate">Date de réception</label>
+        <input type="date" class="form-control" id="receptionDate" name="receptionDate">
+    </div>
+    <div class="form-group">
+        <label for="analysisDate">Date d'analyse</label>
+        <input type="date" class="form-control" id="analysisDate" name="analysisDate">
+    </div>
+    <div class="form-group">
+        <label for="performer">Exécutant</label>
+        <input type="text" class="form-control" id="performer" name="performer">
+    </div>
+    <div class="form-group">
+        <label for="resultEnum">Résultat du test</label>
+        <select class="form-control" id="resultEnum" name="resultEnum">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="comment">Commentaire</label>
+        <textarea class="form-control" id="comment" rows="3" name="comment"></textarea>
+    </div>
+    <br/><br/>
+    @* <button type="submit" class="btn btn-primary">@(Model.Id <= 0 ? "Créer le test" : "Modifier le test")</button> *@
+    <button type="button" onclick="window.history.back()" class="btn btn-secondary">Retour</button>
+    <a asp-action="Index" class="btn btn-secondary">Retour vers la liste</a>
+</form>

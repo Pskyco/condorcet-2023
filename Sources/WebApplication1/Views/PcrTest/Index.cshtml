@@ -1,7 +1,9 @@
-@model List<PcrTestViewModel>
+@model List<PcrTestListViewModel>
 @{
     var i = 1;
 }
+
+<a asp-action="Edit" class="btn btn-primary">Créer un nouveau test</a>
 
 <table class="table">
     <thead>
@@ -14,6 +16,7 @@
         <th scope="col">Result</th>
         <th scope="col">Comment</th>
         <th scope="col">Performer</th>
+        <th scope="col">Edit</th>
     </tr>
     </thead>
     <tbody>
@@ -22,12 +25,13 @@
             <tr>
                 <th scope="row">@i</th>
                 <td>@pcrTest.Code</td>
-                <td>@pcrTest.SamplingDate</td>
+                <td>@pcrTest.SamplingDate.ToString("dd-MM-yyyy")</td>
                 <td>@pcrTest.ReceptionDate</td>
                 <td>@pcrTest.AnalysisDate</td>
-                <td>@pcrTest.ResultEnum</td>
+                <td>@pcrTest.AnalysisResultEnum</td>
                 <td>@pcrTest.Comment</td>
                 <td>@pcrTest.Performer</td>
+                <td><a asp-action="Edit" asp-route-id="@pcrTest.Id" class="btn btn-secondary">Edit</a></td>
             </tr>
             i++;
         }

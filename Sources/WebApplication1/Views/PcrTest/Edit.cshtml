@@ -1,0 +1,51 @@
+@model PcrTestEditViewModel
+
+<form method="post" action="@Url.Action("Edit")">
+    @Html.ValidationSummary()
+    <div class="form-group">
+        <label asp-for="Code">Code</label>
+        <input type="text" class="form-control" placeholder="ABX-001" asp-for="Code">
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SamplingDate">Date de prélèvement</label>
+        <input type="datetime-local" class="form-control" asp-for="SamplingDate">
+    </div>
+    <div class="form-group">
+        <label asp-for="LogisticStatusEnum">Statut logistique</label>
+        <select class="form-control" asp-for="LogisticStatusEnum" asp-items="Html.GetEnumSelectList<LogisticStatusEnum>()">
+            @* <option>@LogisticStatusEnum.Done</option> *@
+            @* <option>@LogisticStatusEnum.Lost</option> *@
+            @* <option>@LogisticStatusEnum.Received</option> *@
+            @* <option>@LogisticStatusEnum.Shipped</option> *@
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="AnalysisResultEnum">Résultat d'analyse</label>
+        <select class="form-control" asp-for="AnalysisResultEnum" asp-items="Html.GetEnumSelectList<AnalysisResultEnum>()">
+            <option value="">-- Sélectionner un résultat --</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="ReceptionDate">Date de réception</label>
+        <input type="date" class="form-control" asp-for="ReceptionDate">
+    </div>
+    <div class="form-group">
+        <label asp-for="AnalysisDate">Date d'analyse</label>
+        <input type="date" class="form-control" asp-for="AnalysisDate">
+    </div>
+    <div class="form-group">
+        <label asp-for="PerformerId">Exécutant</label>
+        <select class="form-control" asp-for="PerformerId" asp-items="Model.SliPerformers">
+            <option value="">-- Sélectionner un exécutant --</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Comment">Commentaire</label>
+        <textarea class="form-control" rows="3" asp-for="Comment"></textarea>
+    </div>
+    <br/><br/>
+    <button type="submit" class="btn btn-primary">@(Model.Id <= 0 ? "Créer le test" : "Modifier le test")</button>
+    <button type="button" onclick="window.history.back()" class="btn btn-secondary">Retour</button>
+    <a asp-action="Index" class="btn btn-secondary">Retour vers la liste</a>
+</form>
