@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "test";
+    var myVar = "ceci est le test";
+    var items = new List<int>() { 1, 2, 3, 4, 5, 6 };
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page to detail your site's privacy policy.</p>
+
+<p>test@gmail.com</p>
+
+<p>@(myVar)</p>
+
+@foreach (var item in items)
+{
+    <p>@item</p>
+}
+
+<script type="text/javascript">
+    console.log("@myVar");
+</script>

@@ -1,0 +1,35 @@
+@model List<PcrTestViewModel>
+@{
+    var i = 1;
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Code</th>
+        <th scope="col">Sampling date</th>
+        <th scope="col">Reception date</th>
+        <th scope="col">Analysis date</th>
+        <th scope="col">Result</th>
+        <th scope="col">Comment</th>
+        <th scope="col">Performer</th>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach (var pcrTest in Model)
+        {
+            <tr>
+                <th scope="row">@i</th>
+                <td>@pcrTest.Code</td>
+                <td>@pcrTest.SamplingDate</td>
+                <td>@pcrTest.ReceptionDate</td>
+                <td>@pcrTest.AnalysisDate</td>
+                <td>@pcrTest.ResultEnum</td>
+                <td>@pcrTest.Comment</td>
+                <td>@pcrTest.Performer</td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
