@@ -10,6 +10,7 @@
     <tr>
         <th scope="col">#</th>
         <th scope="col">Code</th>
+        <th scope="col">Creation date</th>
         <th scope="col">Sampling date</th>
         <th scope="col">Reception date</th>
         <th scope="col">Analysis date</th>
@@ -17,6 +18,7 @@
         <th scope="col">Comment</th>
         <th scope="col">Performer</th>
         <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -25,13 +27,15 @@
             <tr>
                 <th scope="row">@i</th>
                 <td>@pcrTest.Code</td>
-                <td>@pcrTest.SamplingDate.ToString("dd-MM-yyyy")</td>
-                <td>@pcrTest.ReceptionDate</td>
-                <td>@pcrTest.AnalysisDate</td>
+                <td>@pcrTest.CreationDate.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                <td>@pcrTest.SamplingDate.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                <td>@(pcrTest.ReceptionDate?.ToString("dd-MM-yyyy") ?? "-")</td>
+                <td>@(pcrTest.AnalysisDate?.ToString("dd-MM-yyyy") ?? "-")</td>
                 <td>@pcrTest.AnalysisResultEnum</td>
                 <td>@pcrTest.Comment</td>
                 <td>@pcrTest.Performer</td>
                 <td><a asp-action="Edit" asp-route-id="@pcrTest.Id" class="btn btn-secondary">Edit</a></td>
+                <td><a asp-action="Delete" asp-route-id="@pcrTest.Id" class="btn btn-danger">Delete</a></td>
             </tr>
             i++;
         }

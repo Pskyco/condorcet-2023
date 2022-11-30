@@ -1,43 +1,17 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Entities;
 using WebApplication1.Models;
+using WebApplication1.Persistence;
 
 namespace WebApplication1.Controllers;
 
 public class PcrTestController : Controller
 {
-    private List<PcrTest> _pcrTests = new List<PcrTest>()
-    {
-        new PcrTest()
-        {
-            Id = 1,
-            Code = "AB123564",
-            SamplingDate = DateTime.Now,
-            ReceptionDate = DateTime.Now.AddDays(5),
-            AnalysisDate = DateTime.Now.AddDays(6),
-            Comment = "commentaire",
-            PerformerId = 1,
-            AnalysisResultEnum = AnalysisResultEnum.Positive,
-            LogisticStatusEnum = LogisticStatusEnum.Received
-        },
-        new PcrTest()
-        {
-            Id = 2,
-            Code = "AB12354645",
-            SamplingDate = DateTime.Now,
-            ReceptionDate = DateTime.Now.AddDays(6),
-            AnalysisDate = DateTime.Now.AddDays(8),
-            Comment = "commentaire",
-            PerformerId = 2,
-            AnalysisResultEnum = AnalysisResultEnum.Negative,
-            LogisticStatusEnum = LogisticStatusEnum.Received
-        }
-    };
-
     // GET
-    public IActionResult Index()
+    //public IActionResult Index() (sync case)
+    public async Task<IActionResult> Index()
     {
         /*var list = new List<PcrTestListViewModel>();
         foreach (var pcrTest in _pcrTests)
@@ -47,13 +21,20 @@ public class PcrTestController : Controller
                 Id = pcrTest.Id
             });
         }*/
+
+        //var pcrTestsSync = new PcrContext().PcrTests.ToList();
+        var pcrTests = await new PcrContext().PcrTests
+            .Include(x => x.Performer) // join User 'Performer' on User.Id = PcrTests.Id 
+            //.Where(z => z.Performer.Firstname == "Ludwig")
+            .ToListAsync();
         
-        return View(_pcrTests.Select(x => new PcrTestListViewModel()
+        return View(pcrTests.Select(x => new PcrTestListViewModel()
         {
             Id = x.Id,
-            Performer = $"Performer {x.PerformerId}",
+            Performer = $"{x.Performer.Firstname} {x.Performer.Lastname}",
             Code = x.Code,
             Comment = x.Comment,
+            CreationDate = x.CreationDate,
             AnalysisDate = x.AnalysisDate,
             ReceptionDate = x.ReceptionDate,
             SamplingDate = x.SamplingDate,
@@ -61,7 +42,7 @@ public class PcrTestController : Controller
         }).ToList());
     }
 
-    public IActionResult Edit(int id = -1)
+    public async Task<IActionResult> Edit(int id = -1)
     {
         var model = new PcrTestEditViewModel();
 
@@ -69,7 +50,7 @@ public class PcrTestController : Controller
         {
             // query db
             // model.Code = dbResult.Code;
-            var match = _pcrTests.FirstOrDefault(x => x.Id == id);
+            var match = await new PcrContext().PcrTests.FirstOrDefaultAsync(x => x.Id == id);
             if (match != null)
             {
                 model = new PcrTestEditViewModel();
@@ -77,7 +58,6 @@ public class PcrTestController : Controller
                 model.Code = match.Code;
                 model.Comment = match.Comment;
                 model.PerformerId = match.PerformerId;
-                //model.Performer = match.Performer;
                 model.AnalysisDate = match.AnalysisDate;
                 model.ReceptionDate = match.ReceptionDate;
                 model.AnalysisResultEnum = match.AnalysisResultEnum;
@@ -89,18 +69,65 @@ public class PcrTestController : Controller
         {
             model.SamplingDate = DateTime.Now;
         }
+        
+        var users = await new PcrContext().Users.ToListAsync();
+        model.SliPerformers = users
+            .Select(z => new SelectListItem()
+            {
+                Text = $"{z.Firstname} {z.Lastname}",
+                Value = z.Id.ToString()
+            })
+            .ToList();
 
         return View(model);
     }
 
     [HttpPost]
-    public IActionResult Edit(PcrTestEditViewModel model)
+    public async Task<IActionResult> Edit(PcrTestEditViewModel model)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
             return RedirectToAction("Index");
         
-        Console.WriteLine(JsonConvert.SerializeObject(model, Formatting.Indented));
-        // do something with database
+        var dbContext = new PcrContext();
+        PcrTest entityPcrTest = null;
+
+        if (model.Id > 0)
+            entityPcrTest = await dbContext.PcrTests.FindAsync(model.Id);
+        else
+            entityPcrTest = new PcrTest();
+
+        entityPcrTest.Code = model.Code;
+        entityPcrTest.AnalysisDate = model.AnalysisDate;
+        entityPcrTest.ReceptionDate = model.ReceptionDate;
+        entityPcrTest.SamplingDate = model.SamplingDate;
+        entityPcrTest.Comment = model.Comment;
+        entityPcrTest.AnalysisResultEnum = model.AnalysisResultEnum;
+        entityPcrTest.LogisticStatusEnum = model.LogisticStatusEnum;
+        entityPcrTest.PerformerId = model.PerformerId;
+
+        if(entityPcrTest.Id <= 0)
+            await dbContext.AddAsync(entityPcrTest);
+        else
+            dbContext.Update(entityPcrTest);
+        await dbContext.SaveChangesAsync();
+        
+        return RedirectToAction("Index");
+    }
+    
+    public async Task<IActionResult> Delete(int id = -1)
+    {
+        if (id > 0)
+        {
+            var dbContext = new PcrContext();
+            // var match = await dbContext.PcrTests.FirstOrDefaultAsync(x => x.Id == id);
+            var match = await dbContext.PcrTests.FindAsync(id);
+            if (match != null)
+            {
+                dbContext.Remove(match);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+        
         return RedirectToAction("Index");
     }
 }

@@ -7,15 +7,8 @@ public class PcrTestEditViewModel
 {
     // Data annotations: https://www.simplilearn.com/tutorials/asp-dot-net-tutorial/data-annotation-attributes-in-asp-dot-net-mvc
     
-    public List<SelectListItem> SliPerformers => new List<SelectListItem>()
-    {
-        new SelectListItem("Pharmacie A", "1"),
-        new SelectListItem("Pharmacie B", "2"),
-        new SelectListItem("Pharmacie C", "3"),
-        new SelectListItem("Pharmacie D", "4"),
-        new SelectListItem("Pharmacie E", "5")
-    };
-    
+    public List<SelectListItem>? SliPerformers { get; set; }
+
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Le champs 'Code' est requis")]

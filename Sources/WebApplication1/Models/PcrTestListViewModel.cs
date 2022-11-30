@@ -8,6 +8,8 @@ public class PcrTestListViewModel
 
     public string Code { get; set; }
 
+    public DateTime CreationDate { get; set; }
+    
     public DateTime SamplingDate { get; set; }
     
     public DateTime? ReceptionDate { get; set; }
