@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,15 @@ namespace WebApplication1.Controllers;
 
 public class PcrTestController : Controller
 {
+    private readonly PcrContext _pcrContext;
+    private readonly IMapper _mapper;
+
+    public PcrTestController(PcrContext pcrContext, IMapper mapper)
+    {
+        _pcrContext = pcrContext;
+        _mapper = mapper;
+    }
+
     // GET
     //public IActionResult Index() (sync case)
     public async Task<IActionResult> Index()
@@ -22,16 +32,16 @@ public class PcrTestController : Controller
             });
         }*/
 
-        //var pcrTestsSync = new PcrContext().PcrTests.ToList();
-        var pcrTests = await new PcrContext().PcrTests
+        //var pcrTestsSync = _pcrContext.PcrTests.ToList();
+        var pcrTests = await _pcrContext.PcrTests
             .Include(x => x.Performer) // join User 'Performer' on User.Id = PcrTests.Id 
             //.Where(z => z.Performer.Firstname == "Ludwig")
             .ToListAsync();
-        
-        return View(pcrTests.Select(x => new PcrTestListViewModel()
+
+        /*var dtos = pcrTests.Select(x => new PcrTestListViewModel()
         {
-            Id = x.Id,
             Performer = $"{x.Performer.Firstname} {x.Performer.Lastname}",
+            Id = x.Id,
             Code = x.Code,
             Comment = x.Comment,
             CreationDate = x.CreationDate,
@@ -39,7 +49,14 @@ public class PcrTestController : Controller
             ReceptionDate = x.ReceptionDate,
             SamplingDate = x.SamplingDate,
             AnalysisResultEnum = x.AnalysisResultEnum,
-        }).ToList());
+        }).ToList();*/
+
+        //var dtos = pcrTests.Select(x => _mapper.Map<PcrTestListViewModel>(x)).ToList();
+        var dtos2 = _mapper.Map<List<PcrTestListViewModel>>(pcrTests);
+        /*var dtos3 = new List<PcrTestListViewModel>();
+        _mapper.Map(pcrTests, dtos3);*/
+
+        return View(dtos2);
     }
 
     public async Task<IActionResult> Edit(int id = -1)
@@ -50,10 +67,10 @@ public class PcrTestController : Controller
         {
             // query db
             // model.Code = dbResult.Code;
-            var match = await new PcrContext().PcrTests.FirstOrDefaultAsync(x => x.Id == id);
+            var match = await _pcrContext.PcrTests.FirstOrDefaultAsync(x => x.Id == id);
             if (match != null)
             {
-                model = new PcrTestEditViewModel();
+                /*model = new PcrTestEditViewModel();
                 model.Id = match.Id;
                 model.Code = match.Code;
                 model.Comment = match.Comment;
@@ -62,15 +79,17 @@ public class PcrTestController : Controller
                 model.ReceptionDate = match.ReceptionDate;
                 model.AnalysisResultEnum = match.AnalysisResultEnum;
                 model.LogisticStatusEnum = match.LogisticStatusEnum;
-                model.SamplingDate = match.SamplingDate;
+                model.SamplingDate = match.SamplingDate;*/
+                //model = _mapper.Map<PcrTestEditViewModel>(match);
+                _mapper.Map(match, model);
             }
         }
         else
         {
             model.SamplingDate = DateTime.Now;
         }
-        
-        var users = await new PcrContext().Users.ToListAsync();
+
+        var users = await _pcrContext.Users.ToListAsync();
         model.SliPerformers = users
             .Select(z => new SelectListItem()
             {
@@ -87,38 +106,39 @@ public class PcrTestController : Controller
     {
         if (!ModelState.IsValid)
             return RedirectToAction("Index");
-        
-        var dbContext = new PcrContext();
+
         PcrTest entityPcrTest = null;
 
         if (model.Id > 0)
-            entityPcrTest = await dbContext.PcrTests.FindAsync(model.Id);
+            entityPcrTest = await _pcrContext.PcrTests.FindAsync(model.Id);
         else
             entityPcrTest = new PcrTest();
 
-        entityPcrTest.Code = model.Code;
+        _mapper.Map(model, entityPcrTest);
+
+        /*entityPcrTest.Code = model.Code;
         entityPcrTest.AnalysisDate = model.AnalysisDate;
         entityPcrTest.ReceptionDate = model.ReceptionDate;
         entityPcrTest.SamplingDate = model.SamplingDate;
         entityPcrTest.Comment = model.Comment;
         entityPcrTest.AnalysisResultEnum = model.AnalysisResultEnum;
         entityPcrTest.LogisticStatusEnum = model.LogisticStatusEnum;
-        entityPcrTest.PerformerId = model.PerformerId;
+        entityPcrTest.PerformerId = model.PerformerId;*/
 
-        if(entityPcrTest.Id <= 0)
-            await dbContext.AddAsync(entityPcrTest);
+        if (entityPcrTest.Id <= 0)
+            await _pcrContext.AddAsync(entityPcrTest);
         else
-            dbContext.Update(entityPcrTest);
-        await dbContext.SaveChangesAsync();
-        
+            _pcrContext.Update(entityPcrTest);
+        await _pcrContext.SaveChangesAsync();
+
         return RedirectToAction("Index");
     }
-    
+
     public async Task<IActionResult> Delete(int id = -1)
     {
         if (id > 0)
         {
-            var dbContext = new PcrContext();
+            var dbContext = _pcrContext;
             // var match = await dbContext.PcrTests.FirstOrDefaultAsync(x => x.Id == id);
             var match = await dbContext.PcrTests.FindAsync(id);
             if (match != null)
@@ -127,7 +147,7 @@ public class PcrTestController : Controller
                 await dbContext.SaveChangesAsync();
             }
         }
-        
+
         return RedirectToAction("Index");
     }
 }

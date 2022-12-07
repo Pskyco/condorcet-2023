@@ -1,7 +1,12 @@
+using WebApplication1.Configurations;
+using WebApplication1.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSqlite<PcrContext>(builder.Configuration.GetConnectionString("PcrDatabase"));
+builder.Services.AddAutoMapper(typeof(EditViewModelsAutoMapperConfigurations).Assembly);
 
 var app = builder.Build();
 
